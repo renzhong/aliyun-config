@@ -1,0 +1,36 @@
+version: '3.8' # 使用Docker Compose的版本，根据需要选择合适的版本号
+services:
+  nginx: # 服务名
+    image: nginx:1.25.4 # 使用的镜像及其版本
+    container_name: web # 容器名称
+    ports:
+      - "80:80" # 映射宿主机和容器的端口
+      - "443:443"
+      - "3001:3001"
+      - "3101:3101"
+    volumes:
+      - /root/github/aliyun-config/nginx/nginx.conf:/etc/nginx/nginx.conf:ro # 卷挂载，只读方式
+      - /root/github/aliyun-config/nginx/sites-enabled:/etc/nginx/sites-enabled:ro
+      - /root/github/aliyun-config/nginx/sites:/etc/nginx/sites:ro
+      - /root/github/ClashConfigGen/clash_config_nenerator/dist:/usr/share/nginx/www:ro
+      - /usr/local/nginx/ssl:/etc/nginx/ssl:ro
+      - /usr/local/nginx:/usr/local/nginx:ro
+    restart: "no" # 根据需要设置重启策略，默认为"no"，与--rm参数的行为不同，但适用于docker-compose场景
+    depends_on:
+      - node
+  node:
+    image: tobeseeker/clash-node:v1.0.1
+    user: "node"
+    working_dir: /app/server
+    container_name: server
+    ports:
+      - "3010:3010"
+    environment:
+      - NODE_ENV=production
+      - PORT=3010
+    volumes:
+      - /root/github/ClashConfigGen/clash_config_nenerator:/app
+      - /mnt/template:/mnt/template:ro
+      - /mnt/local_clash_dir:/mnt/local_clash_dir:ro
+      - /app/node_modules
+    command: node server.js
