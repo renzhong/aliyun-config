@@ -1,4 +1,4 @@
-version: '3.8' # 使用Docker Compose的版本，根据需要选择合适的版本号
+name: web
 services:
   nginx: # 服务名
     image: nginx # 使用的镜像及其版本
